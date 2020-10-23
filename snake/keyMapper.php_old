@@ -1,0 +1,43 @@
+<?php
+
+class KeyMapper extends Thread{
+	CONST NORTH ='w';
+	CONST WEST = 'a';
+	CONST SOUTH = 's';
+	CONST EAST = 'd';
+	private $stdin; 
+	private $direction=null;
+	public function __construct(){
+		system('stty cbreak -echo');
+		$this->stdin = fopen('php://stdin', 'r');
+		$this->start();
+	}
+	public function run(){
+		while(true){
+			$this->setDirection();
+		}
+	}
+	public function getDirection(){
+		return $this->direction;
+	}
+	public function setDirection(){
+		try {
+			$key = fgetc($this->stdin);
+
+			switch ($key) {
+				case $key == self::NORTH:
+				$this->direction= 'NORTH';
+				case $key == self::EAST:
+				$this->direction = 'EAST';
+				case $key == self::SOUTH:
+				$this->direction = 'SOUTH';
+				case $key == self::WEST:
+				$this->direction= 'WEST';
+			}
+		} catch (Exception $e) {
+			$this->kill();
+		}
+		
+	}
+
+}
