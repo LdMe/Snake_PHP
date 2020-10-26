@@ -12,6 +12,7 @@ class Snake {
 	private $direction;
 	private $keyMapper;
 	public $growing=false;
+	private $dead;
 	public function __construct($x,$y,$dir=Snake::NORTH)
 	{
 		$this->createBodyPart($x,$y);
@@ -32,6 +33,10 @@ class Snake {
 		$this->direction= $dir;
 		$this->createBodyPart($x,$y);
 		$this->keyMapper =new keyMapper();
+		$this->dead = false;
+	}
+	public function isDead(){
+		return $this->dead;
 	}
 	private function createBodyPart($x,$y){
 		$this->size++;
@@ -48,9 +53,11 @@ class Snake {
 		return constant( get_class($this)."::$dir" );
 	}
 	public function move(){
+
 		$this->keyMapper->update();
 		$direction = $this->convert_direction($this->keyMapper->getDirection());
 		if($direction!=null){
+			if($direction != $this->direction + 2 && $direction != $this->direction - 2)
 			$this->direction = $direction;
 		}
 		if($this->growing){
@@ -82,16 +89,36 @@ class Snake {
 		$this->body[0]["y"]= $y;
 
 	}
+	private function checkCollision(){
+		$head = $this->body[0];
+		$skip =true;
+		foreach ($this->body as $bodyPart) {
+			if($skip){
+				$skip = false;
+				continue;
+			}
+			if($head["x"]==$bodyPart["x"] && $head["y"]==$bodyPart["y"])
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 	public function show($arr){
 		$head =true;
+		if($this->checkCollision()){
+			$this->dead=true;
+		}
 		foreach ($this->body as $bodyPart) {
 			$y_size =sizeof($arr);
 			$x_size =sizeof($arr[0]);
 
 			if($bodyPart["y"] >= $y_size || $bodyPart["y"] <0){
+				$this->dead=true;
 				break;
 			}
 			if($bodyPart["x"] >= $x_size || $bodyPart["x"] <0){
+				$this->dead=true;
 				break;
 			}
 			if($head){
